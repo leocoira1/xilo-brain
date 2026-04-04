@@ -254,8 +254,9 @@ else if (
         ? "High-confidence error, but an existing dispute is already in progress."
         : "High-confidence error ready for dispute."
     } else if (
-      confidence >= mediumThreshold && confidence < dynamicThreshold
-      severity === "medium"
+  (confidence >= mediumThreshold && confidence < dynamicThreshold) ||
+  severity === "medium"
+)
     ) {
       finalClassification = "yellow"
       disputeStatus = "manual_review_required"
