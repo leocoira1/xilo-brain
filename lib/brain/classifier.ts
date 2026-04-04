@@ -234,6 +234,8 @@ function classifyFinding(input: CandidateFindingForClassification): ClassifiedFi
     truthLayerStatus = "not_required"
     classificationReason = "Finding was reviewed and cleared."
   } else {
+    const dynamicThreshold = getConfidenceThreshold(estimatedSavings)
+const mediumThreshold = dynamicThreshold - 0.20
     // MVP-adapted deterministic classification:
     // Keep core v1.1 logic, but allow truth-layer-driven yellow routing and manual review where needed.
     if (requiresTruthLayer) {
@@ -241,10 +243,10 @@ function classifyFinding(input: CandidateFindingForClassification): ClassifiedFi
       disputeStatus = "pending_truth_layer"
       truthLayerStatus = "eligible"
       classificationReason = "Requires employee confirmation before dispute."
-    } else if (
-      confidence >= 0.75 &&
-      (severity === "high" || severity === "critical")
-    ) {
+else if (
+  confidence >= dynamicThreshold &&
+  (severity === "high" || severity === "critical")
+)
       finalClassification = "red"
       disputeStatus = duplicateDisputeInProgress ? "blocked" : "ready"
       truthLayerStatus = "not_required"
@@ -252,7 +254,7 @@ function classifyFinding(input: CandidateFindingForClassification): ClassifiedFi
         ? "High-confidence error, but an existing dispute is already in progress."
         : "High-confidence error ready for dispute."
     } else if (
-      (confidence >= 0.55 && confidence < 0.75) ||
+      confidence >= mediumThreshold && confidence < dynamicThreshold
       severity === "medium"
     ) {
       finalClassification = "yellow"
